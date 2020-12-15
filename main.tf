@@ -17,5 +17,3 @@ resource "azurerm_virtual_network" "example" {
   location            = azurerm_resource_group.example.location
   address_space       = ["10.0.0.0/16"]
 }
-
-# Rest of resources will go here
