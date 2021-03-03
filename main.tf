@@ -34,3 +34,42 @@ resource "azurerm_public_ip" "pip"{
   allocation_method = "Dynamic"
 }
 
+#Create a Network Security Group. This controls traffic coming in and going out of VM
+resource "azurerm_network_security_group" "nsg"{
+  name = "NetworkSecurityGroup"
+  location = "eastus"
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule = {
+    access = "Allow"
+    destination_address_prefix = "*"
+    destination_port_range = "22"
+    direction = "Inbound"
+    name = "SSH"
+    priority = 1001
+    protocol = "TCP"
+    source_address_prefix = "*"
+    source_port_range = "*"
+  }
+
+}
+
+#Create a Network Interface Card to connect VM, Public IP, and Vnet
+resource "azurerm_network_interface" "nic"{
+  name = "NetworkInterfaceCard"
+  location = "eastUS"
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name = "NicConfig"
+    subnet_id = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.pip.id
+  }
+}
+
+#Connect Security Group to NIC
+resource "azurerm_network_interface_security_group_association" "connection"{
+  network_interface_id = azurerm_network_interface.nic.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
