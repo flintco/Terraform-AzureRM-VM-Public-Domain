@@ -73,3 +73,32 @@ resource "azurerm_network_interface_security_group_association" "connection"{
   network_interface_id = azurerm_network_interface.nic.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
+
+# Create Linux VM and connect to NIC
+#TODO: Figure out SSH key for linux vm
+resource "azurerm_linux_virtual_machine" "lvm"{
+  name = "LinuxVM"
+  loaction = "eastus"
+  resource_group_name = azurerm_resource_group.rg.name
+  network_interface_ids = [azurerm_network_interface.nic.id]
+  size = "Standard_DS1_v2"
+
+  os_disk {
+    name = "myOsDisk"
+    caching = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer = "UbuntuServer"
+    sku = "18.04-LTS"
+    version = "latest"
+  }
+
+  computer_name  = "myvm"
+  admin_username = "azureuser"
+  disable_password_authentication = true
+
+
+}
