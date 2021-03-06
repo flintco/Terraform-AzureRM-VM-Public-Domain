@@ -100,5 +100,10 @@ resource "azurerm_linux_virtual_machine" "lvm"{
   admin_username = "azureuser"
   disable_password_authentication = true
 
+}
 
+#Create DNS Zone
+resource "azure_dns_zone" "dzone"{
+  name = "mydomain.com"
+  resource_group_name = azurerm_resource_group.rg.name
 }
