@@ -107,3 +107,12 @@ resource "azure_dns_zone" "dzone"{
   name = "mydomain.com"
   resource_group_name = azurerm_resource_group.rg.name
 }
+
+#Create DNS A Record
+resource "azurerm_dns_a_record" "arecord" {
+  name = "DnsARecord"
+  zone_name = azurerm_dns_zone.dzone.name
+  resource_group_name = azurerm_resource_group.rg.name
+  ttl = 300
+  target_resource_id = azurerm_public_ip.pip.name
+}
