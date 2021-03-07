@@ -74,6 +74,14 @@ resource "azurerm_network_interface_security_group_association" "connection"{
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
+#Create SSH Key
+resource "tls_private_key" "pkey"{
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+output "tls_private_key" { value = tls_private_key.example_ssh.private_key_pem }
+
 # Create Linux VM and connect to NIC
 #TODO: Figure out SSH key for linux vm
 resource "azurerm_linux_virtual_machine" "lvm"{
@@ -99,6 +107,11 @@ resource "azurerm_linux_virtual_machine" "lvm"{
   computer_name  = "myvm"
   admin_username = "azureuser"
   disable_password_authentication = true
+
+  admin_ssh_key {
+    username = "AzureUser"
+    public_key = tls_private_key.pkey.public_key_openssh
+  }
 
 }
 
