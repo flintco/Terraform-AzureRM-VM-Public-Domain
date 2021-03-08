@@ -52,6 +52,8 @@ resource "azurerm_network_security_group" "nsg"{
     source_port_range = "*"
   }
 
+  #Add Security rule for HTTP access
+
 }
 
 #Create a Network Interface Card to connect VM, Public IP, and Vnet
@@ -74,16 +76,7 @@ resource "azurerm_network_interface_security_group_association" "connection"{
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-#Create SSH Key
-resource "tls_private_key" "pkey"{
-  algorithm = "RSA"
-  rsa_bits = 4096
-}
-
-output "tls_private_key" { value = tls_private_key.example_ssh.private_key_pem }
-
 # Create Linux VM and connect to NIC
-#TODO: Figure out SSH key for linux vm
 resource "azurerm_linux_virtual_machine" "lvm"{
   name = "LinuxVM"
   loaction = "eastus"
@@ -108,11 +101,13 @@ resource "azurerm_linux_virtual_machine" "lvm"{
   admin_username = "azureuser"
   disable_password_authentication = true
 
+  /*Takes public key that is on the SSH client (in this case local computer that does Terraform apply)
+  The computer that does Terraform apply will be able to SSH into VM that is created.
+  NOTE: This stores SSH key in your state file */ 
   admin_ssh_key {
     username = "AzureUser"
-    public_key = tls_private_key.pkey.public_key_openssh
+    public_key = file("~/.ssh/id_rsa.pub")
   }
-
 }
 
 #Create DNS Zone
