@@ -1,4 +1,8 @@
 #Application Abbrevation (this will be used as a prefix for your resources)
+variable "abbreviation" {
+  type = string
+  default = "app"
+}
 
 #Domain Name
 
@@ -9,3 +13,10 @@
 #Default should be adminuser
 
 #VM Size
+
+
+/*For all:
+type = string
+default = "";
+
+To access in terrafrom var.DomainName
