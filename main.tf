@@ -134,3 +134,5 @@ resource "azurerm_dns_a_record" "arecord" {
   ttl = 300
   target_resource_id = azurerm_public_ip.pip.name
 }
+
+#comment
