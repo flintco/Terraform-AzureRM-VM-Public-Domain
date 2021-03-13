@@ -7,7 +7,7 @@ provider "azurerm" {
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
   name     = "ResourceGroup"
-  location = "North Central US"
+  location = "eastus"
 }
 
 # Create a virtual network within the resource group
@@ -17,6 +17,7 @@ resource "azurerm_virtual_network" "vnet" {
   location            = azurerm_resource_group.rg.location
   address_space       = ["10.0.0.0/16"]
 }
+
 
 #Create a subnet within the virtual network
 resource "azurerm_subnet" "subnet"{
@@ -66,18 +67,17 @@ resource "azurerm_network_security_group" "nsg"{
     }
 }
 
-#Create a Network Interface Card to connect VM, Public IP, and Vnet
-resource "azurerm_network_interface" "nic"{
-  name = "NetworkInterfaceCard"
-  location = "eastUS"
-  resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_network_interface" "nic" {
+    name                        = "NetworkInterfaceCard"
+    location                    = "eastus"
+    resource_group_name         = azurerm_resource_group.rg.name
 
-  ip_configuration {
-    name = "NicConfig"
-    subnet_id = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.pip.id
-  }
+    ip_configuration {
+        name                          = "myNicConfiguration"
+        subnet_id                     = azurerm_subnet.subnet.id
+        private_ip_address_allocation = "Dynamic"
+        public_ip_address_id          = azurerm_public_ip.pip.id
+    }
 }
 
 #Connect Security Group to NIC
@@ -86,43 +86,44 @@ resource "azurerm_network_interface_security_group_association" "connection"{
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# Create Linux VM and connect to NIC
-resource "azurerm_linux_virtual_machine" "lvm"{
-  name = "LinuxVM"
-  loaction = "eastus"
-  resource_group_name = azurerm_resource_group.rg.name
-  network_interface_ids = [azurerm_network_interface.nic.id]
-  size = "Standard_DS1_v2"
+# Create virtual machine
+resource "azurerm_linux_virtual_machine" "lvm" {
+    name                  = "LinuxVM"
+    location              = "eastus"
+    resource_group_name   = azurerm_resource_group.rg.name
+    network_interface_ids = [azurerm_network_interface.nic.id]
+    size                  = "Standard_DS1_v2"
 
-  os_disk {
-    name = "myOsDisk"
-    caching = "ReadWrite"
-    storage_account_type = "Premium_LRS"
-  }
+    os_disk {
+        name              = "myOsDisk"
+        caching           = "ReadWrite"
+        storage_account_type = "Premium_LRS"
+    }
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer = "UbuntuServer"
-    sku = "18.04-LTS"
-    version = "latest"
-  }
+    source_image_reference {
+        publisher = "Canonical"
+        offer     = "UbuntuServer"
+        sku       = "18.04-LTS"
+        version   = "latest"
+    }
 
-  computer_name  = "myvm"
-  admin_username = "azureuser"
-  disable_password_authentication = true
+    computer_name  = "myvm"
+    admin_username = "azureuser"
+    disable_password_authentication = true
 
-  /*Takes public key that is on the SSH client (in this case local computer that does Terraform apply)
-  The computer that does Terraform apply will be able to SSH into VM that is created.
-  NOTE: This stores SSH key in your state file */ 
-  admin_ssh_key {
-    username = "AzureUser"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
+    /*Takes public key that is on the SSH client (in this case local computer that does Terraform apply)
+    The computer that does Terraform apply will be able to SSH into VM that is created.
+    NOTE: This stores SSH key in your state file  */
+
+    admin_ssh_key {
+        username       = "azureuser"
+        public_key = file("~/.ssh/id_rsa.pub")
+    }
 }
 
 #Create DNS Zone
-resource "azure_dns_zone" "dzone"{
-  name = "mydomain.com"
+resource "azurerm_dns_zone" "dzone"{
+  name = "terraformpractice.site"
   resource_group_name = azurerm_resource_group.rg.name
 }
 
@@ -132,7 +133,5 @@ resource "azurerm_dns_a_record" "arecord" {
   zone_name = azurerm_dns_zone.dzone.name
   resource_group_name = azurerm_resource_group.rg.name
   ttl = 300
-  target_resource_id = azurerm_public_ip.pip.name
+  target_resource_id = azurerm_public_ip.pip.id
 }
-
-#comment
