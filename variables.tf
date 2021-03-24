@@ -7,7 +7,7 @@ variable "abbreviation" {
 #Domain Name
 variable "domain" {
   type = string
-  default = "mysite.com"
+  default = "terraformpractice.site"
 }
 
 #Azure Region (Region where your resources will be physically located)

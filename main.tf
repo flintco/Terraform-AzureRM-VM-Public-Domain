@@ -7,14 +7,14 @@ provider "azurerm" {
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
   name     = "ResourceGroup"
-  location = "eastus"
+  location = var.location
 }
 
 # Create a virtual network within the resource group
 resource "azurerm_virtual_network" "vnet" {
   name                = "VirtualNetwork"
   resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  location            = var.location
   address_space       = ["10.0.0.0/16"]
 }
 
@@ -30,7 +30,7 @@ resource "azurerm_subnet" "subnet"{
 #Create a public IP resource
 resource "azurerm_public_ip" "pip"{
   name = "PublicIP"
-  location = "eastus"
+  location = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method = "Dynamic"
 }
@@ -38,7 +38,7 @@ resource "azurerm_public_ip" "pip"{
 #Create a Network Security Group. This controls traffic coming in and going out of VM
 resource "azurerm_network_security_group" "nsg"{
   name = "NetworkSecurityGroup"
-  location = "eastus"
+  location = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
   #SSH Access
@@ -69,7 +69,7 @@ resource "azurerm_network_security_group" "nsg"{
 
 resource "azurerm_network_interface" "nic" {
     name                        = "NetworkInterfaceCard"
-    location                    = "eastus"
+    location                    = var.location
     resource_group_name         = azurerm_resource_group.rg.name
 
     ip_configuration {
@@ -89,7 +89,7 @@ resource "azurerm_network_interface_security_group_association" "connection"{
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "lvm" {
     name                  = "LinuxVM"
-    location              = "eastus"
+    location              = var.location
     resource_group_name   = azurerm_resource_group.rg.name
     network_interface_ids = [azurerm_network_interface.nic.id]
     size                  = "Standard_DS1_v2"
@@ -108,7 +108,7 @@ resource "azurerm_linux_virtual_machine" "lvm" {
     }
 
     computer_name  = "myvm"
-    admin_username = "azureuser"
+    admin_username = var.admin
     disable_password_authentication = true
 
     /*Takes public key that is on the SSH client (in this case local computer that does Terraform apply)
@@ -116,14 +116,14 @@ resource "azurerm_linux_virtual_machine" "lvm" {
     NOTE: This stores SSH key in your state file  */
 
     admin_ssh_key {
-        username       = "azureuser"
+        username = var.admin
         public_key = file("~/.ssh/id_rsa.pub")
     }
 }
 
 #Create DNS Zone
 resource "azurerm_dns_zone" "dzone"{
-  name = "terraformpractice.site"
+  name = var.domain
   resource_group_name = azurerm_resource_group.rg.name
 }
 
