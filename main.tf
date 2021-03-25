@@ -1,3 +1,4 @@
+// join("", [var.abbreviation, "bar"])
 # Configure the Azure Provider
 provider "azurerm" {
   version = "=2.40.0"
@@ -6,7 +7,7 @@ provider "azurerm" {
 
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
-  name     = "ResourceGroup"
+  name     = join("", [var.abbreviation, "-ResourceGroup"])
   location = var.location
 }
 
