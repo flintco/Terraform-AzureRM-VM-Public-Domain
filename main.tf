@@ -1,4 +1,3 @@
-// join("", [var.abbreviation, "bar"])
 # Configure the Azure Provider
 provider "azurerm" {
   version = "=2.40.0"
@@ -108,7 +107,7 @@ resource "azurerm_linux_virtual_machine" "lvm" {
         version   = "latest"
     }
 
-    computer_name  = "myvm"
+    computer_name  = join("", [var.abbreviation, "-vm"])
     admin_username = var.admin
     disable_password_authentication = true
 

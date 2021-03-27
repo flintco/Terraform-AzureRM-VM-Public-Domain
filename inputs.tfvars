@@ -1,14 +1,14 @@
-#Application Abbrevation (this will be used as a prefix for your resources)
-abbreviation = ""
+#Application Abbrevation (this will be used as a prefix for your resources). Keep to 6 characters or less.
+abbreviation = "App"
 
 #Domain Name
-domain = ""
+domain = "terraformpractice.site"
 
 #Azure Region (Region where your resources will be physically located)
-location = ""
+location = "eastus"
 
 #VM Admin Username. You will use this when you SSH into VM.
-admin = ""
+admin = "adminuser"
 
 #VM Size
-vmsize = ""
+vmsize = "Standard_DS1_v2"
