@@ -89,14 +89,14 @@ resource "azurerm_network_interface_security_group_association" "connection"{
 
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "lvm" {
-    name                  = "LinuxVM"
+    name                  = join("", [var.abbreviation, "-LinuxVM"])
     location              = var.location
     resource_group_name   = azurerm_resource_group.rg.name
     network_interface_ids = [azurerm_network_interface.nic.id]
     size                  = "Standard_DS1_v2"
 
     os_disk {
-        name              = "myOsDisk"
+        name              = join("", [var.abbreviation, "-myOsDisk"])
         caching           = "ReadWrite"
         storage_account_type = "Premium_LRS"
     }
